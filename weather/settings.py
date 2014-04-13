@@ -18,7 +18,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': PROJECT_PATH + "/../var/WeatherDB",                      # Or path to database file if using sqlite3.
+        'NAME': '/srv/weather.torproject.org/opt/weather/var/WeatherDB',
         'TEST_NAME': 'WeatherTestDB',
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
