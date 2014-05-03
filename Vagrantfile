@@ -10,11 +10,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "wheezy64"
+  #
+  # 64bit guest for 64bit host
+  #config.vm.box = "wheezy64"
+  # 32bit guest for 32bit host
+  config.vm.box = "wheezy32"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/debian-73-x64-virtualbox-puppet.box"
+  #
+  # 64bit guest for 64bit host
+  #config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/debian-73-x64-virtualbox-nocm.box"
+  # 32bit guest for 32bit host
+  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/debian-73-i386-virtualbox-nocm.box"
+
+  config.vm.boot_timeout = 600
+
+  # Simple bootstrapping script to get things going
+  config.vm.provision :shell, :path => "vagrant/bootstrap.sh"
+
+  config.vm.hostname = "weather"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -38,19 +53,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  # 
+  # IMPORTANT:
+  # In case you run into problems with mounting, see here:
+  # https://stackoverflow.com/questions/22717428/vagrant-error-failed-to-mount-folders-in-linux-guest
+  config.vm.synced_folder ".", "/vagrant"#, :nfs => true
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
+  config.vm.provider "virtualbox" do |vb|
+    # Don't boot with headless mode
+    #vb.gui = true
+ 
+    # Use VBoxManage to customize the VM. For example to change memory:
+    vb.customize ["modifyvm", :id, "--memory", "512"]
+  end
   #
   # View the documentation for the provider you're using for more
   # information on available options.
@@ -73,11 +92,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # #               Managed by Puppet.\n"
   # # }
   #
-  config.vm.provision "puppet" do |puppet|
-    puppet.manifests_path = "puppet/manifests"
-    puppet.module_path = "puppet/modules"
-    puppet.manifest_file  = "site.pp"
-  end
+  #config.vm.provision "puppet" do |puppet|
+  #  puppet.manifests_path = "puppet/manifests"
+  #  puppet.module_path = "puppet/modules"
+  #  puppet.manifest_file  = "site.pp"
+  #end
 
   # Enable provisioning with chef solo, specifying a cookbooks path, roles
   # path, and data_bags path (all relative to this Vagrantfile), and adding

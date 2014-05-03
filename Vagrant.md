@@ -1,6 +1,22 @@
 Setting up a VM using Vagrant, and getting Weather to run
 =========================================================
 
+Important
+---------
+At the time of writing, *none* of the steps below the line "Stop here" are necessary anymore.
+A vagrant box with provisioning has been set up and should do all the work for
+you!
+Anyhow, these instructions will be kept for reference should anything be amiss.
+
+Please note that the only thing you will have to do is edit your _/etc/hosts_
+file accordingly to contain this line:
+
+```sh
+192.168.33.10 weather.dev
+```
+
+This will allow you to point your browser to "weather.dev".
+
 Clone Weather Git repo
 ----------------------
 
@@ -15,6 +31,9 @@ Start VM using Vagrant
 vagrant up
 vagrant ssh
 ```
+
+--> Stop here! <--
+==================
 
 Install missing and/or useful packages
 --------------------------------------
