@@ -32,17 +32,20 @@ echo "Done!"
 
 # prep weather-settings
 echo "Prepping weather settings:"
+echo "Create weather user"
+echo "Create ~/opt/current"
 echo "Set EMAIL_BACKEND"
 echo "Set EMAIL_FILE_PATH"
-echo "Set auth_token"
-cat >> /vagrant/weather/settings.py << EOF
+useradd weather --groups debian-tor --create-home
+mkdir ~weather/opt/current
+grep EMAIL_BACKEND /home/weather/opt/current/weather/settings.py > /dev/null
+if [ $? -ne 0 ]; then
+    cat >> /home/weather/opt/current/weather/settings.py << EOF
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/weather-messages'
 EOF
-cat > /vagrant/weather/config/auth_token << EOF
-password
-EOF
-echo "Done!"
+    echo "Done!"
+fi
 
 # generate ssl cert
 echo "Generating SSL certificate..."
@@ -67,7 +70,7 @@ cat > /etc/apache2/sites-available/weather.dev << EOF
     ServerName weather.dev
     ErrorLog  /var/log/apache2/weather.dev-error.log
     CustomLog /var/log/apache2/weather.dev-access.log privacy
-    WSGIScriptAlias / /vagrant/weather/weather.wsgi
+    WSGIScriptAlias / /home/weather/opt/current//weather/weather.wsgi
     RewriteEngine On
     RewriteRule ^(.*)$ https://%{SERVER_NAME}$1 [L,R]
 </VirtualHost>
@@ -76,13 +79,13 @@ cat > /etc/apache2/sites-available/weather.dev << EOF
     SSLCertificateFile    /etc/ssl/certs/weather.dev.pem
     SSLCertificateKeyFile /etc/ssl/private/weather.dev.key
     ServerName weather.dev
-    AliasMatch ^/([^/]*\.png) /vagrant/weather/media/$1
-    AliasMatch ^/([^/]*\.css) /vagrant/weather/media/$1
-    AliasMatch ^/([^/]*\.js) /vagrant/weather/media/$1
-    Alias /media/ /vagrant/weather/media/
+    AliasMatch ^/([^/]*\.png) /home/weather/opt/current/weather/media/$1
+    AliasMatch ^/([^/]*\.css) /home/weather/opt/current/weather/media/$1
+    AliasMatch ^/([^/]*\.js) /home/weather/opt/current/weather/media/$1
+    Alias /media/ /home/weather/opt/current/weather/media/
     ErrorLog  /var/log/apache2/weather.dev-error.log
     CustomLog /var/log/apache2/weather.dev-access.log privacy
-    WSGIScriptAlias / /vagrant/weather/weather.wsgi
+    WSGIScriptAlias / /home/weather/opt/current/weather/weather.wsgi
 </VirtualHost>
 EOF
 echo "Done!"
@@ -95,7 +98,7 @@ echo "Done!"
 
 # sync weather
 echo "Syncing weather-db..."
-cd /vagrant/weather && ./manage.py syncdb --noinput
+cd /home/weather/opt/current/weather && ./manage.py syncdb --noinput
 echo "ATTENTION: auto-creation of superuser 'vagrant' with pw 'vagrant'!!"
 echo "Done!"
 
