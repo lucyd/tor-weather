@@ -12,8 +12,10 @@ this is being deployed.
 @var base_url: The root URL for the Tor Weather web application.
 """
 
+import os
 # XXX: Make bulletproof
-authenticator = open("/home/weather/opt/current/weather/config/auth_token", "r").read().strip()
+path = os.path.split(os.path.realpath(__file__))[0]
+authenticator = open(os.path.join(path, "auth_token"), "r").read().strip()
 
 #The Tor control port to use
 control_port = 9051
