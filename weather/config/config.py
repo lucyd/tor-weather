@@ -1,8 +1,8 @@
 """
 Configuration settings.
 
-For vagrant, copy config-vagrant.py over top of this.
-For now, I'm leaving the production values in here as-is.
+See docs/INSTALL -- you'll want to change base_url to reflect where
+this is being deployed.
 
 @var authenticator: The authentication key
 @var listener_port: The Tor control port for the listener to use. This port
@@ -19,4 +19,4 @@ authenticator = open("/home/weather/opt/current/weather/config/auth_token", "r")
 control_port = 9051
 
 #The base URL for the Tor Weather web application:
-base_url = 'https://weather.torproject.org'
+base_url = 'https://weather.dev'
