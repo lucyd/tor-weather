@@ -17,11 +17,11 @@ import os
 path = os.path.split(os.path.realpath(__file__))[0]
 authenticator = open(os.path.join(path, "auth_token"), "r").read().strip()
 
-#The Tor control port to use
+# The Tor control port to use
 control_port = 9051
 
-#The base URL for the Tor Weather web application:
+# The base URL for the Tor Weather web application:
 base_url = 'https://weather.dev'
 
-#This check should be True only in production
+# This check should be True only in production
 check_deploy_time = False

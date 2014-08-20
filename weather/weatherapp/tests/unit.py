@@ -18,11 +18,13 @@ class GetRouterNameTests(TestCase):
 
     def test_fingerprint_arg_undefined(self):
         del self.func_kwargs["fingerprint"]
-        self.assertRaises(TypeError, emails._get_router_name, **self.func_kwargs)
+        self.assertRaises(TypeError, emails._get_router_name,
+                          **self.func_kwargs)
 
     def test_name_arg_undefined(self):
         del self.func_kwargs["name"]
-        self.assertRaises(TypeError, emails._get_router_name, **self.func_kwargs)
+        self.assertRaises(TypeError, emails._get_router_name,
+                          **self.func_kwargs)
 
     def test_name_branch(self):
         val0 = emails._get_router_name(**self.func_kwargs)
@@ -150,31 +152,38 @@ class BandwidthTupleTests(TestCase):
 
     def test_recipient_arg_undefined(self):
         del self.func_kwargs["recipient"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_fingerprint_arg_undefined(self):
         del self.func_kwargs["fingerprint"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_name_arg_undefined(self):
         del self.func_kwargs["name"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_observed_arg_undefined(self):
         del self.func_kwargs["observed"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_threshold_arg_undefined(self):
         del self.func_kwargs["threshold"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_unsubs_auth_arg_undefined(self):
         del self.func_kwargs["unsubs_auth"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_pref_auth_arg_undefined(self):
         del self.func_kwargs["pref_auth"]
-        self.assertRaises(TypeError, emails.bandwidth_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.bandwidth_tuple,
+                          **self.func_kwargs)
 
     def test_ok(self):
         val = emails.bandwidth_tuple(**self.func_kwargs)
@@ -196,27 +205,33 @@ class NodeDownTupleTests(TestCase):
 
     def test_recipient_arg_undefined(self):
         del self.func_kwargs["recipient"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_fingerprint_arg_undefined(self):
         del self.func_kwargs["fingerprint"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_name_arg_undefined(self):
         del self.func_kwargs["name"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_grace_pd_arg_undefined(self):
         del self.func_kwargs["grace_pd"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_unsubs_auth_arg_undefined(self):
         del self.func_kwargs["unsubs_auth"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_pref_auth_arg_undefined(self):
         del self.func_kwargs["pref_auth"]
-        self.assertRaises(TypeError, emails.node_down_tuple, **self.func_kwargs)
+        self.assertRaises(TypeError, emails.node_down_tuple,
+                          **self.func_kwargs)
 
     def test_ok(self):
         """Returns a tuple of four items."""

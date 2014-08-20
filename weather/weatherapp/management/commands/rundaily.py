@@ -22,9 +22,9 @@ TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 TWO_MONTHS = 2 * 30 * 86400
 
 
-global relays_details
-global relays_uptime
-global relays_bandwidth
+global rel_details
+global rel_uptime
+global rel_bandwidth
 
 
 def calculate_2mo_avg(relay, data_type):
@@ -37,7 +37,7 @@ def calculate_2mo_avg(relay, data_type):
             return -1
     elif data_type == 'bandwidth':
         if hasattr(relay, 'write_history') and\
-        '3_months' in relay.write_history:
+           '3_months' in relay.write_history:
             data = relay.write_history['3_months']
         else:
             return -1
@@ -114,7 +114,6 @@ def delete_old_router_entries():
     cutoff_time = get_cutoff_time()
     deploy_time = get_deploy_time()
     for entry in Router.objects.all():
-        #last_seen = datetime.strptime(entry.last_seen, TIME_FORMAT)
         last_seen = entry.last_seen
         if (last_seen - max(deploy_time, cutoff_time)).total_seconds() < 0:
             entry.delete()
@@ -161,7 +160,7 @@ def check_tshirt_constraints(first_seen_check, exit_check, uptime, bandwidth):
 
 def check_welcome(relay_index, email_list):
     """ Implements welcome script functionality and returns welcome email """
-    relay = relays_details[relay_index]
+    relay = rel_details[relay_index]
     if checks.is_stable(relay) and is_recent(relay):
         matches = Router.objects.filter(fingerprint=relay.fingerprint)
         if not matches:
@@ -179,12 +178,12 @@ def check_welcome(relay_index, email_list):
 
 def check_tshirt(relay_index, email_list):
     """ Implements tshirt script functionality and returns tshirt email """
-    relay = relays_details[relay_index]
+    relay = rel_details[relay_index]
     first_seen = datetime.strptime(relay.first_seen, TIME_FORMAT)
     first_seen_check = check_first_seen(relay)
     exit_port_check = checks.check_exitport(relay)
-    uptime_percent = get_uptime_percent(relays_uptime[relay_index])
-    avg_bandwidth = get_avg_bandwidth(relays_bandwidth[relay_index])
+    uptime_percent = get_uptime_percent(rel_uptime[relay_index])
+    avg_bandwidth = get_avg_bandwidth(rel_bandwidth[relay_index])
     if check_tshirt_constraints(first_seen_check,
                                 exit_port_check,
                                 uptime_percent,
@@ -253,25 +252,23 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Fetch relays data from Onionoo
-        global relays_details
-        global relays_uptime
-        global relays_bandwidth
-        relays_details = get_relays('details')
-        relays_uptime = get_relays('uptime')
-        relays_bandwidth = get_relays('bandwidth')
-        if not len(relays_details) == len(relays_uptime) == len(relays_bandwidth):
+        global rel_details
+        global rel_uptime
+        global rel_bandwidth
+        rel_details = get_relays('details')
+        rel_uptime = get_relays('uptime')
+        rel_bandwidth = get_relays('bandwidth')
+        if not len(rel_details) == len(rel_uptime) == len(rel_bandwidth):
             raise DataError("Inconsistent Onionoo data")
 
         # Accumulate emails to be sent
         email_list = []
-        for relay_index in range(len(relays_details)):
+        for relay_index in range(len(rel_details)):
             email_list = check_welcome(relay_index, email_list)
             email_list = check_tshirt(relay_index, email_list)
 
         # Send the emails to the selected operators/subscribers
-        #send_mass_mail(tuple(email_list), fail_silently=False)
+        # send_mass_mail(tuple(email_list), fail_silently=False)
 
         # Delete old Router entries from database
         delete_old_router_entries()
-
-

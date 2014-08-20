@@ -90,5 +90,4 @@ class Command(BaseCommand):
             email_list = get_nodedown_emails(relay, email_list)
 
         # Send the notification emails to selected subscribers
-        #send_mass_mail(tuple(email_list), fail_silently=False)
-
+        # send_mass_mail(tuple(email_list), fail_silently=False)

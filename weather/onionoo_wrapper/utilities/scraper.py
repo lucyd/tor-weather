@@ -1,6 +1,5 @@
 # Kind thanks to Damian Johnson and his great work on the existing weather
-# Most of this code has been taken from https://gitweb.torproject.org/user/atagar/weather.git
-# and adapted accordingly.
+# Source : https://gitweb.torproject.org/user/atagar/weather.git
 
 import logging
 import string
@@ -35,8 +34,7 @@ def deobfuscate_mail(relay):
 
     email = re.search('[^\s]+'
                       '(?:@|[' + punct + '\s]+at[' + punct + '\s]+).+'
-                      '(?:\.|[' + punct + '\s]+dot[' + punct + '\s]+)[^\n\s\)\(]+',
-                      clean_line, re.IGNORECASE)
+                      '(?:\.|[' + punct + '\s]+dot[' + punct + '\s]+)[^\n\s\)\(]+', clean_line, re.IGNORECASE)
 
     if email is None or email == "":
         unparsable = open(UNPARSABLE, 'a')

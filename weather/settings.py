@@ -2,12 +2,12 @@
 import os
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-DEBUG = True #set to true to see stack traces instead of standard html errors
-#DEBUG = False #set to true to see stack traces instead of standard html errors
+DEBUG = True  # set to true to see stack traces instead of standard html errors
+# DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-     ('Weather Admin', 'kaner@torproject.org'),
+    ('Weather Admin', 'kaner@torproject.org'),
 )
 
 # Set From: address for outgoing admin emails
@@ -17,7 +17,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': os.path.join(PROJECT_PATH, '..', 'var', 'WeatherDB'),
         'TEST_NAME': 'WeatherTestDB',
         'USER': '',                      # Not used with sqlite3.
@@ -71,7 +71,7 @@ SECRET_KEY = 'f3d-wd6=2ajeik(ane)ynxp(ho-h4=_=g=l$rg8d=5$kff-w6l'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,9 +108,9 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
 )
 
-#SMTP server configuration
+# SMTP server configuration
 EMAIL_HOST = 'localhost'
-EMAIL_HOST_PASSWORD = '' 
+EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = ''
 EMAIL_PORT = '25'
 EMAIL_USE_TLS = False

@@ -1,14 +1,14 @@
 """
-The views module contains the controllers for the Tor Weather application 
+The views module contains the controllers for the Tor Weather application
 (Django is idiosyncratic in that it names controllers 'views'; models are still
-models and views are called templates). This module contains a single 
+models and views are called templates). This module contains a single
 controller for each page type. The controllers handle form submission and
 page rendering/redirection.
 """
 import threading
 
 from weatherapp.models import Subscriber, Router, GenericForm, \
-        SubscribeForm, PreferencesForm, insert_fingerprint_spaces
+    SubscribeForm, PreferencesForm, insert_fingerprint_spaces
 from weatherapp import emails
 from config import url_helper, templates
 from weatherapp import error_messages
@@ -21,19 +21,21 @@ from django.http import HttpResponseRedirect, HttpRequest, Http404
 from django.http import HttpResponse
 from django.utils import simplejson
 
+
 def home(request):
     """Displays a home page for Tor Weather with basic information about
     the application."""
     url_extension = url_helper.get_subscribe_ext()
-    return render_to_response(templates.home, {'sub' : url_extension})
+    return render_to_response(templates.home, {'sub': url_extension})
+
 
 def subscribe(request):
     """Displays the subscription form (all fields empty or default) if the
     form hasn't been submitted. After the user hits the submit button,
     redirects to the pending page if all of the fields were acceptable.
-    If the user is already subscribed to that Tor node, they are sent to 
+    If the user is already subscribed to that Tor node, they are sent to
     an error page."""
-   
+
     if request.method != 'POST':
         # User hasn't submitted info, so just display empty subscribe form.
         form = SubscribeForm()
@@ -53,21 +55,22 @@ def subscribe(request):
 
                 # Spawn a daemon to send the confirmation email.
                 confirm_auth = subscriber.confirm_auth
-		unsubs_auth = subscriber.unsubs_auth
+                unsubs_auth = subscriber.unsubs_auth
                 addr = subscriber.email
                 fingerprint = subscriber.router.fingerprint
                 name = subscriber.router.name
-                email_thread = threading.Thread(target=emails.send_confirmation,
-                               args=[addr, fingerprint, name, confirm_auth])
+                email_thread = threading.Thread(
+                    target=emails.send_confirmation,
+                    args=[addr, fingerprint, name, confirm_auth])
                 email_thread.setDaemon(True)
                 email_thread.start()
-        
+
                 # Redirect the user to the pending page.
-                #url_extension = url_helper.get_pending_ext(confirm_auth)
+                # url_extension = url_helper.get_pending_ext(confirm_auth)
                 url_extension = url_helper.get_pending_ext(unsubs_auth)
                 return HttpResponseRedirect(url_extension)
-    
-    c = {'form' : form}
+
+    c = {'form': form}
 
     # For pages with POST methods, a Cross Site Request Forgery protection
     # key is added to block attacking sites.
@@ -75,20 +78,21 @@ def subscribe(request):
 
     return render_to_response(templates.subscribe, c)
 
+
 def preferences(request, pref_auth):
     """The preferences page, which contains the preferences form initially
     populated by user-specific data
-    
+
     @type pref_auth: str
     @param pref_auth: The user's preferences authorization key.
     """
 
-    user = get_object_or_404(Subscriber, pref_auth = pref_auth)                
+    user = get_object_or_404(Subscriber, pref_auth=pref_auth)
 
     if not user.confirmed:
         # the user hasn't confirmed, send them to an error page
-        error_extension = url_helper.get_error_ext('need_confirmation', 
-                                             user.confirm_auth)
+        error_extension = url_helper.get_error_ext('need_confirmation',
+                                                   user.confirm_auth)
         return HttpResponseRedirect(error_extension)
 
     if request.method != "POST":
@@ -99,13 +103,14 @@ def preferences(request, pref_auth):
             # Creates/changes/deletes subscriptions and subscription info
             # based on form data
             form.change_subscriptions(form.cleaned_data)
-            
+
             # Redirect the user to the pending page
             url_extension = url_helper.get_confirm_pref_ext(pref_auth)
-            return HttpResponseRedirect(url_extension) 
+            return HttpResponseRedirect(url_extension)
 
-    fields = {'pref_auth': pref_auth, 'fingerprint': user.router.fingerprint,
-         'form': form}
+    fields = {'pref_auth': pref_auth,
+              'fingerprint': user.router.fingerprint,
+              'form': form}
     fields.update(csrf(request))
 
     # get the template
@@ -113,6 +118,7 @@ def preferences(request, pref_auth):
 
     # display the page
     return render_to_response(template, fields)
+
 
 def notification_info(request):
     """Displays detailed technical information about how the different
@@ -124,9 +130,9 @@ def notification_info(request):
 
 def pending(request, confirm_auth):
     """The user views the pending page after submitting a registration form.
-    The page tells the user that a confirmation email has been sent to 
+    The page tells the user that a confirmation email has been sent to
     the address the user provided.
-    
+
     @type confirm_auth: str
     @param confirm_auth: The user's confirmation authorization key.
     """
@@ -141,10 +147,11 @@ def pending(request, confirm_auth):
     url_extension = url_helper.get_home_ext()
     return HttpResponseRedirect(url_extension)
 
+
 def confirm(request, confirm_auth):
     """The confirmation page, which is displayed when the user follows the
     link sent to them in the confirmation email.
-    
+
     @type confirm_auth: str
     @param confirm_auth: The user's confirmation authorization key.
     """
@@ -157,15 +164,14 @@ def confirm(request, confirm_auth):
         user.save()
     else:
         # the user is already confirmed, send to an error page
-        error_url_ext = url_helper.get_error_ext('already_confirmed',    
+        error_url_ext = url_helper.get_error_ext('already_confirmed',
                                                  confirm_auth)
         return HttpResponseRedirect(error_url_ext)
 
-
     if not router.welcomed:
-        #We assume that people will only subscribe to relays they are running.
-        #We set welcomed to True so that we don't accidentally send welcome
-        #emails to users who are already subscribed.
+        # We assume that people will only subscribe to relays they are running.
+        # We set welcomed to True so that we don't accidentally send welcome
+        # emails to users who are already subscribed.
         router.welcomed = True
         router.save()
 
@@ -173,39 +179,40 @@ def confirm(request, confirm_auth):
     unsubURL = url_helper.get_unsubscribe_url(user.unsubs_auth)
     prefURL = url_helper.get_preferences_url(user.pref_auth)
 
-    # spawn a daemon to send an email confirming subscription and 
-    #providing the links
-    email_thread=threading.Thread(target=emails.send_confirmed,
-                            args=[user.email, router.fingerprint, router.name,
-                                  user.unsubs_auth, user.pref_auth])
+    # spawn a daemon to send an email confirming subscription and
+    # providing the links
+    email_thread = threading.Thread(target=emails.send_confirmed,
+                                    args=[user.email, router.fingerprint,
+                                          router.name, user.unsubs_auth,
+                                          user.pref_auth])
     email_thread.setDaemon(True)
     email_thread.start()
 
     # get the template for the confirm page
     template = templates.confirm
 
-    return render_to_response(template, {'email': user.email, 
-                                         'fingerprint' : router.fingerprint, 
-                                         'nodeName' : router.name, 
-                                         'unsubURL' : unsubURL, 
-                                         'prefURL' : prefURL})
-        
+    return render_to_response(template, {'email': user.email,
+                                         'fingerprint': router.fingerprint,
+                                         'nodeName': router.name,
+                                         'unsubURL': unsubURL,
+                                         'prefURL': prefURL})
+
+
 def unsubscribe(request, unsubscribe_auth):
     """The unsubscribe page, which displays a message informing the user
     that they will no longer receive emails at their email address about
     the given Tor node.
-    
+
     @type unsubscribe_auth: str
     @param unsubscribe_auth: The user's unsubscribe authorization key.
     """
     # Get the user and router.
-    user = get_object_or_404(Subscriber, unsubs_auth = unsubscribe_auth)
+    user = get_object_or_404(Subscriber, unsubs_auth=unsubscribe_auth)
     router = user.router
-    
     email = user.email
     router_name = router.name
-    fingerprint = router.spaced_fingerprint() 
-    
+    fingerprint = router.spaced_fingerprint()
+
     # We know the router has a fingerprint, but it might not have a name,
     # format the string.
     name = ""
@@ -220,18 +227,19 @@ def unsubscribe(request, unsubscribe_auth):
     url_extension = url_helper.get_subscribe_ext()
     # get the unsubscribe template
     template = templates.unsubscribe
-    return render_to_response(template, {'email' : email, 
-                                         'name' : name,
-                                         'fingerprint' :fingerprint, 
+    return render_to_response(template, {'email': email,
+                                         'name': name,
+                                         'fingerprint': fingerprint,
                                          'subURL': url_extension})
+
 
 def confirm_pref(request, pref_auth):
     """The page confirming that preferences have been changed.
-    
+
     @type pref_auth: str
     @param pref_auth: The user's preferences authorization key.
     """
-    user = get_object_or_404(Subscriber, pref_auth = pref_auth)
+    user = get_object_or_404(Subscriber, pref_auth=pref_auth)
     prefURL = url_helper.get_preferences_url(pref_auth)
     unsubURL = url_helper.get_unsubscribe_url(user.unsubs_auth)
 
@@ -239,33 +247,35 @@ def confirm_pref(request, pref_auth):
     template = templates.confirm_pref
 
     # The page includes the unsubscribe and change prefs links
-    return render_to_response(template, {'prefURL' : prefURL,
-                                         'unsubURL' : unsubURL})
+    return render_to_response(template, {'prefURL': prefURL,
+                                         'unsubURL': unsubURL})
+
 
 def resend_conf(request, confirm_auth):
     """The page informing the user that the confirmation email containing
     the link to finalize the subscription has been resent.
-    
+
     @type confirm_auth: str
     @param confirm_auth: The user's confirmation authorization key.
     """
-    user = get_object_or_404(Subscriber, confirm_auth = confirm_auth)
+    user = get_object_or_404(Subscriber, confirm_auth=confirm_auth)
     router = user.router
     template = templates.resend_conf
 
     # spawn a daemon to resend the confirmation email
-    email_thread=threading.Thread(target=emails.send_confirmation,
-                            args=[user.email, router.fingerprint, router.name,
-                                  confirm_auth])
+    email_thread = threading.Thread(target=emails.send_confirmation,
+                                    args=[user.email, router.fingerprint,
+                                          router.name, confirm_auth])
     email_thread.setDaemon(True)
     email_thread.start()
 
-    return render_to_response(template, {'email' : user.email})
+    return render_to_response(template, {'email': user.email})
+
 
 def fingerprint_not_found(request, fingerprint):
-    """Displays the fingerprint not found page when a user follows a link for 
-    more info in the 'fingerprint not found' validation error. This error is 
-    displayed on the subscribe form if the user tries to subscribe to a node 
+    """Displays the fingerprint not found page when a user follows a link for
+    more info in the 'fingerprint not found' validation error. This error is
+    displayed on the subscribe form if the user tries to subscribe to a node
     that isn't in our database.
 
     @type fingerprint: str
@@ -274,21 +284,23 @@ def fingerprint_not_found(request, fingerprint):
     # get the template
     template = templates.fingerprint_not_found
 
-    #display the page
-    return render_to_response(template, {'fingerprint' :
-        insert_fingerprint_spaces(fingerprint)})
+    # display the page
+    return render_to_response(
+        template,
+        {'fingerprint': insert_fingerprint_spaces(fingerprint)})
+
 
 def error(request, error_type, key):
     """The generic error page, which displays a message based on the error
     type passed to this controller.
-    
+
     @type error_type: str
     @param error_type: A description of the type of error encountered.
     @type key: str
-    @param key: A key interpreted by the get_error_message function in the 
+    @param key: A key interpreted by the get_error_message function in the
         error_messages module to render a user-specific error message.
     """
-    
+
     # get the appropriate error message
     message = error_messages.get_error_message(error_type, key)
 
@@ -296,12 +308,13 @@ def error(request, error_type, key):
     template = templates.error
 
     # display the page
-    return render_to_response(template, {'error_message' : message})
+    return render_to_response(template, {'error_message': message})
+
 
 def router_name_lookup(request):
     """Action called by the L{router_search} search field to perform
-    autocomplete. Looks for the router name entered by looking at GET data, 
-    and then returns an HTTP response with json data for the list of 
+    autocomplete. Looks for the router name entered by looking at GET data,
+    and then returns an HTTP response with json data for the list of
     L{Router}s with names that contain the current value of the name search
     field. This json data in the HTTP response is received by javascript in
     autocomplete.js, an external autocomplete library.
@@ -323,18 +336,19 @@ def router_name_lookup(request):
             # Ignore queries shorter than length 2
             if len(value) > 2:
                 nodes = Router.objects.filter(name__icontains=value)
-                results = [ node.name for node in nodes ]
+                results = [node.name for node in nodes]
 
         # Creates a json object
         json = simplejson.dumps(results)
         return HttpResponse(json, mimetype='application/json')
 
+
 def router_fingerprint_lookup(request):
     """Action called by the router name enter button to use the entered
-    L{Router} name to look up the L{Router}'s fingerprint. Looks at the 
-    entered name by looking at GET data, and then returns an HTTP response 
+    L{Router} name to look up the L{Router}'s fingerprint. Looks at the
+    entered name by looking at GET data, and then returns an HTTP response
     with json data for the L{Router}'s fingerprint. Using json is probably
-    over the top, but this was the method used by the autocomplete library, 
+    over the top, but this was the method used by the autocomplete library,
     which is what I based this on.
 
     @type request: HttpRequest
@@ -348,7 +362,7 @@ def router_fingerprint_lookup(request):
         if u'query' in request.GET:
             router_name = request.GET[u'query']
             try:
-                router = Router.objects.get(name = router_name)
+                router = Router.objects.get(name=router_name)
             except Router.MultipleObjectsReturned:
                 json = simplejson.dumps('nonunique_name')
             except Router.DoesNotExist:
